@@ -51,6 +51,17 @@ Para ejecutar esta solución, asegúrate de tener Docker y Docker Compose instal
 1. Clona este repositorio.
 2. Navega al directorio del proyecto.
 3. Ejecuta `docker-compose up -d` para levantar los contenedores.
+4. Ejecuta El Script para crear la base de datos scriptNeorisDB.sql
+
+## Error en docker
+Por alguna razón a veces rabbitMQ tarde en iniciar cuando pasa eso podemos ir a nuestro gestor docker e iniciar el contenedor de los microservicios manualmente 
+
+
+### Asi suele quedar
+![Docker error1](DockerHelp/dock1.png)
+
+### Se puede ejecutar Manualmente
+![Docker solution](DockerHelp/dock2.png)
 
 ## Conclusión
 
