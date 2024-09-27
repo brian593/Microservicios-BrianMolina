@@ -1,0 +1,66 @@
+version: '3.4'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - microservice-network
+
+  clientepersonamicroservice:
+    image: ${DOCKER_REGISTRY-}clientepersonamicroservice
+    build:
+      context: .
+      dockerfile: ClientePersonaMicroService/Dockerfile
+    ports:
+      - "5001:80"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - microservice-network
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=NeorisDb;User=sa;Password=YourStrong!Passw0rd;Encrypt=True;TrustServerCertificate=True;"
+      RabbitMQ__Hostname: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "guest"
+      RabbitMQ__Password: "guest"
+
+  cuentamovimientosmicroservice:
+    image: ${DOCKER_REGISTRY-}cuentamovimientosmicroservice
+    build:
+      context: .
+      dockerfile: CuentaMovimientosMicroService/Dockerfile
+    ports:
+      - "5002:80"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - microservice-network
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=NeorisDb;User=sa;Password=YourStrong!Passw0rd;Encrypt=True;TrustServerCertificate=True;"
+      RabbitMQ__Hostname: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "guest"
+      RabbitMQ__Password: "guest"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   
+      - "15672:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge

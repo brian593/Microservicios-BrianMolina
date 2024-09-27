@@ -1,0 +1,7 @@
+﻿@ClientePersonaService_HostAddress = http://localhost:5230
+
+GET {{ClientePersonaService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
