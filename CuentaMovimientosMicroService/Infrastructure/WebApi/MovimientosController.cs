@@ -55,14 +55,21 @@ namespace CuentaMovimientosMicroService.Infrastructure.WebApi
                 return NotFound("Cuenta no encontrada.");
             }
 
+            // Obtener el último saldo de la cuenta (sin modificar el saldo inicial)
+            decimal ultimoSaldo = cuenta.SaldoInicial;
+            if (await _movimientoRepository.TieneMovimientosAsync(cuenta.Id))
+            {
+                ultimoSaldo = (decimal)await _movimientoRepository.GetUltimoSaldoByCuentaIdAsync(cuenta.Id);
+            }
+
             // Verificar si el movimiento es un retiro y si hay saldo suficiente
-            if (movimientoDto.Valor < 0 && cuenta.SaldoInicial + movimientoDto.Valor < 0)
+            if (movimientoDto.Valor < 0 && ultimoSaldo + movimientoDto.Valor < 0)
             {
                 return BadRequest("Saldo no disponible");
             }
 
-            // Actualizar el saldo de la cuenta
-            cuenta.SaldoInicial += movimientoDto.Valor;
+            // No actualizar el saldo inicial de la cuenta, solo usar el último saldo para el movimiento
+            decimal nuevoSaldo = ultimoSaldo + movimientoDto.Valor;
 
             // Registrar el movimiento
             var movimiento = new Movimiento
@@ -70,14 +77,11 @@ namespace CuentaMovimientosMicroService.Infrastructure.WebApi
                 Fecha = movimientoDto.Fecha,
                 TipoMovimiento = movimientoDto.TipoMovimiento,
                 Valor = movimientoDto.Valor,
-                Saldo = movimientoDto.SaldoDisponible,  // Asumimos que saldoDisponible es el saldo actual
+                Saldo = nuevoSaldo,  // Aquí guardamos el nuevo saldo
                 CuentaId = cuenta.Id
             };
 
             await _movimientoRepository.AddMovimientoAsync(movimiento);
-
-            // Actualizar la cuenta en la base de datos
-            await _cuentaRepository.UpdateCuentaAsync(cuenta);
 
             return CreatedAtAction(nameof(GetMovimiento), new { id = movimiento.Id }, movimiento);
         }
