@@ -16,7 +16,7 @@ namespace IntegrationTests
         public void Setup()
         {
             var options = new DbContextOptionsBuilder<AppDbContext>()
-        .UseSqlServer("Server=(local);Database=NeorisDb_Test;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;").Options;
+        .UseSqlServer("Server=(local);Database=NeorisDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;").Options;
 
             _context = new AppDbContext(options);
             _cuentaRepository = new CuentaRepository(_context);
